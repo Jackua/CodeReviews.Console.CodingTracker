@@ -1,17 +1,18 @@
-﻿namespace CodingTracker.Jackua.Model;
+﻿using System.Reflection;
+
+namespace CodingTracker.Jackua.Model;
 
 internal class CodingSessionModel
 {
-    internal int Id { get; init; }
     internal DateTime StartDateTime { get; init; }
     internal DateTime EndDateTime { get; init; }
-    internal TimeSpan Duration { get; }
+    internal TimeSpan Duration { get { return EndDateTime.Subtract(StartDateTime); } }
 
-    internal CodingSessionModel(int id, DateTime startTime, DateTime endTime)
+    internal void Deconstruct(out string startDateTime, out string endDateTime, out string duration)
     {
-        Id = id;
-        StartDateTime = startTime;
-        EndDateTime = endTime;
-        Duration = StartDateTime.Subtract(EndDateTime);
+        startDateTime = this.StartDateTime.ToString();
+        endDateTime = this.EndDateTime.ToString();
+        duration = this.Duration.ToString(string.Format("G"));
     }
+
 }
