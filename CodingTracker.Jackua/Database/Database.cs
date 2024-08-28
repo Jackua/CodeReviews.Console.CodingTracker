@@ -16,7 +16,8 @@ namespace CodingTracker.Jackua.Database
                     CREATE TABLE IF NOT EXISTS coding_sessions (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         startDateTime TEXT,
-                        endDateTime TEXT
+                        endDateTime TEXT,
+                        duration TEXT
                     );
 
                     INSERT INTO coding_sessions
@@ -40,13 +41,16 @@ namespace CodingTracker.Jackua.Database
 
         internal static int InsertRecord(CodingSessionModel model)
         {
-            var sql = "INSERT INTO coding_sessions (startDateTime, endDateTime) VALUES (@startDateTime, @endDateTime);";
+            var (StartDateTime, EndDateTime, Duration) = model;
+            var parameters = new { StartDateTime, EndDateTime, Duration };
+
+            var sql = "INSERT INTO coding_sessions (startDateTime, endDateTime, duration) VALUES (@StartDateTime, @EndDateTime, @Duration);";
 
             int rowsAffected;
 
             using (var connection = new SqliteConnection(connectionString))
             {
-                rowsAffected = connection.Execute(sql, model);
+                rowsAffected = connection.Execute(sql, parameters);
             }
 
             return rowsAffected;
@@ -54,9 +58,10 @@ namespace CodingTracker.Jackua.Database
 
         internal static int UpdateRecord(int id, CodingSessionModel model)
         {
-            var parameters = new { id, model};
+            var (StartDateTime, EndDateTime, Duration) = model;
+            var parameters = new { id, StartDateTime, EndDateTime, Duration };
 
-            var sql = @$"UPDATE coding_sessions SET startDateTime = @model.StartDateTime, endDateTime = @model.EndDateTime WHERE id = @id;";
+            var sql = @$"UPDATE coding_sessions SET startDateTime = @StartDateTime, endDateTime = @EndDateTime, duration = @Duration WHERE id = @id;";
 
             int rowsAffected;
 
@@ -99,11 +104,11 @@ namespace CodingTracker.Jackua.Database
             return records;
         }
 
-        internal static List<CodingSessionModel> GetRecordBy(string filter)
+        internal static List<CodingSessionModel> GetRecordBy(string startDateTime, string endDateTime, string duration)
         {
-            var parameters = new { filter };
+            var parameters = new { startDateTime, endDateTime, duration };
 
-            var sql = "SELECT * FROM coding_sessions WHERE @filter;";
+            var sql = "SELECT * FROM coding_sessions WHERE startDateTime like @startDateTime and endDateTime like @endDateTime and duration like @duration;";
 
             List<CodingSessionModel> records = new List<CodingSessionModel>();
 
