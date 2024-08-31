@@ -3,16 +3,16 @@ using Dapper;
 using Microsoft.Data.Sqlite;
 using System.Configuration;
 
-namespace CodingTracker.Jackua.Database
-{
-    internal static class Database
-    {
-        internal static string connectionString = ConfigurationManager.ConnectionStrings["connectionString"].ToString();
+namespace CodingTracker.Jackua.Database;
 
-        internal static void CreateTable()
-        {
-            var sql =
-                @"
+internal static class Database
+{
+    internal static string connectionString = ConfigurationManager.ConnectionStrings["connectionString"].ToString();
+
+    internal static void CreateTable()
+    {
+        var sql =
+            @"
                     CREATE TABLE IF NOT EXISTS coding_sessions (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         startDateTime TEXT,
@@ -33,91 +33,91 @@ namespace CodingTracker.Jackua.Database
                         SELECT * FROM coding_sessions
                     );
                 ";
-            using (var connection = new SqliteConnection(connectionString))
-            {
-                connection.Execute(sql);
-            }
-        }
-
-        internal static int InsertRecord(CodingSessionModel model)
+        using (var connection = new SqliteConnection(connectionString))
         {
-            var (StartDateTime, EndDateTime, Duration) = model;
-            var parameters = new { StartDateTime, EndDateTime, Duration };
-
-            var sql = "INSERT INTO coding_sessions (startDateTime, endDateTime, duration) VALUES (@StartDateTime, @EndDateTime, @Duration);";
-
-            int rowsAffected;
-
-            using (var connection = new SqliteConnection(connectionString))
-            {
-                rowsAffected = connection.Execute(sql, parameters);
-            }
-
-            return rowsAffected;
-        }
-
-        internal static int UpdateRecord(int id, CodingSessionModel model)
-        {
-            var (StartDateTime, EndDateTime, Duration) = model;
-            var parameters = new { id, StartDateTime, EndDateTime, Duration };
-
-            var sql = @$"UPDATE coding_sessions SET startDateTime = @StartDateTime, endDateTime = @EndDateTime, duration = @Duration WHERE id = @id;";
-
-            int rowsAffected;
-
-            using (var connection = new SqliteConnection(connectionString))
-            {
-                rowsAffected = connection.Execute(sql, parameters);
-            }
-
-            return rowsAffected;
-        }
-
-
-        internal static int DeleteRecord(int id)
-        {
-            var parameters = new { id };
-
-            var sql = @$"DELETE FROM coding_sessions WHERE id = @id;";
-
-            int rowsAffected;
-
-            using (var connection = new SqliteConnection(connectionString))
-            {
-                rowsAffected = connection.Execute(sql, parameters);
-            }
-
-            return rowsAffected;
-        }
-
-        internal static List<CodingSessionModel> GetRecord()
-        {
-            var sql = "SELECT * FROM coding_sessions;";
-
-            List<CodingSessionModel> records = new List<CodingSessionModel>();
-
-            using (var connection = new SqliteConnection(connectionString))
-            {
-                records = connection.Query<CodingSessionModel>(sql).ToList();
-            }
-
-            return records;
-        }
-
-        internal static List<CodingSessionModel> GetRecordBy(string startDateTime, string endDateTime, string duration)
-        {
-            var parameters = new { startDateTime, endDateTime, duration };
-
-            var sql = "SELECT * FROM coding_sessions WHERE startDateTime like @startDateTime and endDateTime like @endDateTime and duration like @duration;";
-
-            List<CodingSessionModel> records = new List<CodingSessionModel>();
-
-            using (var connection = new SqliteConnection(connectionString))
-            {
-                records = connection.Query<CodingSessionModel>(sql, parameters).ToList();
-            }
-
-            return records;
+            connection.Execute(sql);
         }
     }
+
+    internal static int InsertRecord(CodingSessionModel model)
+    {
+        var (StartDateTime, EndDateTime, Duration) = model;
+        var parameters = new { StartDateTime, EndDateTime, Duration };
+
+        var sql = "INSERT INTO coding_sessions (startDateTime, endDateTime, duration) VALUES (@StartDateTime, @EndDateTime, @Duration);";
+
+        int rowsAffected;
+
+        using (var connection = new SqliteConnection(connectionString))
+        {
+            rowsAffected = connection.Execute(sql, parameters);
+        }
+
+        return rowsAffected;
+    }
+
+    internal static int UpdateRecord(int id, CodingSessionModel model)
+    {
+        var (StartDateTime, EndDateTime, Duration) = model;
+        var parameters = new { id, StartDateTime, EndDateTime, Duration };
+
+        var sql = "UPDATE coding_sessions SET startDateTime = @StartDateTime, endDateTime = @EndDateTime, duration = @Duration WHERE id = @id;";
+
+        int rowsAffected;
+
+        using (var connection = new SqliteConnection(connectionString))
+        {
+            rowsAffected = connection.Execute(sql, parameters);
+        }
+
+        return rowsAffected;
+    }
+
+
+    internal static int DeleteRecord(int id)
+    {
+        var parameters = new { id };
+
+        var sql = "DELETE FROM coding_sessions WHERE id = @id;";
+
+        int rowsAffected;
+
+        using (var connection = new SqliteConnection(connectionString))
+        {
+            rowsAffected = connection.Execute(sql, parameters);
+        }
+
+        return rowsAffected;
+    }
+
+    internal static List<CodingSessionModel> GetRecords()
+    {
+        var sql = "SELECT * FROM coding_sessions;";
+
+        List<CodingSessionModel> records = new List<CodingSessionModel>();
+
+        using (var connection = new SqliteConnection(connectionString))
+        {
+            records = connection.Query<CodingSessionModel>(sql).ToList();
+        }
+
+        return records;
+    }
+
+    internal static List<CodingSessionModel> GetRecordsBy(string startDateTime, string endDateTime, string duration)
+    {
+        var parameters = new { startDateTime = $"%{startDateTime}%", endDateTime = $"%{endDateTime}%", duration = $"%{duration}%" };
+
+        var sql = "SELECT * FROM coding_sessions WHERE startDateTime like @startDateTime and endDateTime like @endDateTime and duration like @duration;";
+
+        List<CodingSessionModel> records = new List<CodingSessionModel>();
+
+        using (var connection = new SqliteConnection(connectionString))
+        {
+            records = connection.Query<CodingSessionModel>(sql, parameters).ToList();
+        }
+
+        return records;
+    }
+
 }
