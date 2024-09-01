@@ -41,7 +41,7 @@ internal static class Database
 
     internal static int InsertRecord(CodingSessionModel model)
     {
-        var (StartDateTime, EndDateTime, Duration) = model;
+        var (Id, StartDateTime, EndDateTime, Duration) = model;
         var parameters = new { StartDateTime, EndDateTime, Duration };
 
         var sql = "INSERT INTO coding_sessions (startDateTime, endDateTime, duration) VALUES (@StartDateTime, @EndDateTime, @Duration);";
@@ -58,7 +58,7 @@ internal static class Database
 
     internal static int UpdateRecord(int id, CodingSessionModel model)
     {
-        var (StartDateTime, EndDateTime, Duration) = model;
+        var (Id, StartDateTime, EndDateTime, Duration) = model;
         var parameters = new { id, StartDateTime, EndDateTime, Duration };
 
         var sql = "UPDATE coding_sessions SET startDateTime = @StartDateTime, endDateTime = @EndDateTime, duration = @Duration WHERE id = @id;";
